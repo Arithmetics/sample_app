@@ -16,15 +16,15 @@ class UsersController < ApplicationController
   end
 
   def create
-    @user = User.new(user_params) #needs to be changed later
-    if @user.save
-      log_in @user
-      flash[:success] = "Welcome to the Sample App!"
-      redirect_to @user
-    else
-      render 'new'
-    end
-  end
+   @user = User.new(user_params)
+   if @user.save
+     UserMailer.account_activation(@user).deliver_now
+     flash[:info] = "Please check your email to activate your account."
+     redirect_to root_url
+   else
+     render 'new'
+   end
+ end
 
   def edit
     @user = User.find(params[:id])
@@ -74,6 +74,6 @@ class UsersController < ApplicationController
     #confirms admin user.
     def admin_user
       redirect_to(root_url) unless current_user.admin?
-    end 
+    end
 
 end

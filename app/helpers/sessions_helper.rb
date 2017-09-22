@@ -27,14 +27,13 @@ module SessionsHelper
     cookies.delete(:remember_token)
   end
 
-  #Returns the current logged in user to the pages
+  # Returns the current logged-in user (if any).
   def current_user
-    if (user_id = session[:user_id]) #not a comparrison, this is an assignment!
-      #I think this will only return a true if session exists and it just saves a step of assign later
-      @current_user ||= User.find_by(id: user_id) #user_id used here now
-    elsif (user_id = cookies.signed[:user_id]) #same deal here
-      user = User.find_by(id: user_id) #same
-      if user && user.authenticated?(cookies[:remember_token])
+    if (user_id = session[:user_id])
+      @current_user ||= User.find_by(id: user_id)
+    elsif (user_id = cookies.signed[:user_id])
+      user = User.find_by(id: user_id)
+      if user && user.authenticated?(:remember, cookies[:remember_token])
         log_in user
         @current_user = user
       end
@@ -60,7 +59,7 @@ module SessionsHelper
   #store the URL trying to be accessed.
   def store_location
     session[:forwarding_url] = request.original_url if request.get?
-  end 
+  end
 
 
 
